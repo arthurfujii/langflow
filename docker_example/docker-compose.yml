@@ -15,8 +15,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    networks:
-      - langflow-network
 
   postgres:
     image: postgres:16
@@ -31,8 +29,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    networks:
-      - langflow-network
 
   nginx:
     image: nginx:latest
@@ -40,8 +36,6 @@ services:
       - 8989:80
     volumes:
       - nginx-data:/etc/nginx
-    networks:
-      - langflow-network
     healthcheck:
       test: ["CMD", "service", "nginx", "status"]
       interval: 30s
@@ -52,8 +46,6 @@ services:
       - postgres
     
     
-networks:
-  - langflow-network
 
 volumes:
   langflow-postgres:
