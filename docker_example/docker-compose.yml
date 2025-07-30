@@ -2,8 +2,6 @@ services:
   langflow:
     image: langflowai/langflow:latest # or another version tag on https://hub.docker.com/r/langflowai/langflow
     pull_policy: always               # set to 'always' when using 'latest' image
-    ports:
-      - "7860:7860"
     depends_on:
       - postgres
     environment:
@@ -12,6 +10,15 @@ services:
       - LANGFLOW_CONFIG_DIR=app/langflow
     volumes:
       - langflow-data:/app/langflow
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://langflow:7860"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - langflow-network
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:16
@@ -19,11 +26,37 @@ services:
       POSTGRES_USER: langflow
       POSTGRES_PASSWORD: langflow
       POSTGRES_DB: langflow
-    ports:
-      - "5432:5432"
     volumes:
       - langflow-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - langflow-network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 8989:80
+    volumes:
+      - nginx-data:/etc/nginx
+    networks:
+      - langflow-network
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      - langflow
+      - postgres
+    
+    
 
 volumes:
   langflow-postgres:
   langflow-data:
+  nginx-data:
+  
