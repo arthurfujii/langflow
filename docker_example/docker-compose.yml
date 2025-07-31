@@ -4,7 +4,11 @@ services:
     pull_policy: always               # set to 'always' when using 'latest' image
     depends_on:
       - postgres
+    ports:
+      - "7860:7860"
     environment:
+      - LANGFLOW_HOST=0.0.0.0
+      - LANGFLOW_PORT=7860
       - LANGFLOW_DATABASE_URL=postgresql://langflow:langflow@postgres:5432/langflow
       # This variable defines where the logs, file storage, monitor data and secret keys are stored.
       - LANGFLOW_CONFIG_DIR=app/langflow
@@ -29,25 +33,22 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
-  nginx:
-    image: nginx:latest
+    
+  caddy:
+    image: caddy:latest
     ports:
-      - 8989:80
+      - "80:80"
+      - "443:443"
     volumes:
-      - nginx-data:/etc/nginx
-    healthcheck:
-      test: ["CMD", "service", "nginx", "status"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
       - langflow
-      - postgres
-    
-    
 
 volumes:
+  caddy_data:
+  caddy_config:
   langflow-postgres:
   langflow-data:
   nginx-data:
