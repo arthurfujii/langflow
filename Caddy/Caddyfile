@@ -1,0 +1,7 @@
+:80 {
+    reverse_proxy langflow:7860
+}
+
+:443 {
+    reverse_proxy langflow:7860
+}
