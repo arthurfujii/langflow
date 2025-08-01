@@ -40,7 +40,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "90:80"
-      - "554:443"
+      - "4433:443"
     volumes:
       - caddy_data:/data
       - caddy_config:/config
@@ -52,5 +52,4 @@ volumes:
   caddy_config:
   langflow-postgres:
   langflow-data:
-  nginx-data:
   
